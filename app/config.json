@@ -64,11 +64,7 @@
   "tv": [
     { "key": "cnn", "name": "CNN", "hdmi": 2, "logo": "logos/cnn.png", "epg": { "type": "tv24", "slug": "cnn-international" } },
     { "key": "lrt", "name": "LRT", "hdmi": 2, "logo": "logos/lrt.png", "epg": { "type": "tv24", "slug": "lrt" } },
-    { "key": "euronews", "name": "Euronews", "hdmi": 2, "logo": "logos/euronews.png", "epg": [
-      { "type": "tv24", "slug": "euronews" },
-      { "type": "tv24", "slug": "euronews-english" },
-      { "type": "filmweb", "id": "192", "timezone": "Europe/Warsaw" }
-    ] }
+    { "key": "euronews", "name": "Euronews", "hdmi": 2, "logo": "logos/euronews.png", "epg": { "type": "filmweb", "id": "192", "timezone": "Europe/Warsaw" } }
   ],
   "inputs": [
     { "key": "ps5", "name": "PS5", "hdmi": 3, "icon": "gamepad", "logo": "logos/playstation.svg", "logoBg": "#0070D1" },

@@ -145,15 +145,20 @@ async function tv24(slug) {
 }
 
 // filmweb.pl lists times in Polish local time inside each programme block.
+// Each programme is a <div class="tvPageGroupedSeances …" data-start-time data-end-time> block whose
+// first itemprop="name" is the programme title (the second one is the channel).
 export function parseFilmweb(html, tz) {
   const items = [];
-  for (const block of html.split('class="tvPageGroupedSeances TvPageGroupedSeances"').slice(1)) {
-    const start = (block.match(/data-start-time="([^"]+)"/) || [])[1];
-    const end = (block.match(/data-end-time="([^"]+)"/) || [])[1];
+  const opens = [...html.matchAll(/<div class="tvPageGroupedSeances(?:\s[^"]*)?"[^>]*>/g)];
+  opens.forEach((m, i) => {
+    const tag = m[0];
+    const block = html.slice(m.index, i + 1 < opens.length ? opens[i + 1].index : html.length);
+    const start = (tag.match(/data-start-time="([^"]+)"/) || [])[1];
+    const end = (tag.match(/data-end-time="([^"]+)"/) || [])[1];
     const name = (block.match(/itemprop="name"\s+content="([^"]*)"/) || block.match(/content="([^"]*)"\s+itemprop="name"/)
       || block.match(/itemprop="name"[^>]*>([^<]+)</) || [])[1];
     if (start && end && name) items.push({ title: decode(name.trim()), start: toUtc(start, tz), end: toUtc(end, tz) });
-  }
+  });
   return items;
 }
 

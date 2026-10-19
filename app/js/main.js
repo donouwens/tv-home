@@ -69,9 +69,18 @@ function renderWeather() {
 
 /* ---------- teams ---------- */
 
-function badge(b) {
+// An image that swaps itself for `fallback` if it doesn't load (offline, moved file).
+function logoOr(src, cls, fallback) {
+  if (!src) return fallback;
+  const img = el('img', { class: cls, src, alt: '' });
+  img.addEventListener('error', () => img.replaceWith(fallback));
+  return img;
+}
+
+// The club's crest, or its initials in club colours until the crest is known.
+function badge(b, logo) {
   const style = 'background:' + b.bg + ';color:' + b.fg + ';' + (b.ring ? 'box-shadow:inset 0 0 0 3px ' + b.ring + ';' : '');
-  return el('span', { class: 'badge', 'aria-hidden': 'true', style }, b.text);
+  return logoOr(logo, 'badge badge-crest', el('span', { class: 'badge', 'aria-hidden': 'true', style }, b.text));
 }
 
 function teamViews() {
@@ -95,7 +104,7 @@ function teamCard(v) {
         el('span', { class: 'team-score' }, v.last.score),
         fixture('team-where', '', v.last.opponent, v.last.when))
     : el('span');
-  return el('li', { class: 'team' }, badge(v.badge),
+  return el('li', { class: 'team' }, badge(v.badge, v.logo),
     el('div', { class: 'team-grid' },
       el('span', { class: 'team-name' }, v.name),
       result,
@@ -114,7 +123,7 @@ function liveCard(v) {
         'aria-label': 'Watch ' + v.name + ' ' + v.live.venue + ' ' + v.live.opponent + ' live, ' + v.watch.label.replace(/^Watch /, '')
       }, el('span', { svg: icons.playSolid }), v.watch.label)
     : null;
-  return el('li', { class: 'team is-live' }, badge(v.badge),
+  return el('li', { class: 'team is-live' }, badge(v.badge, v.logo),
     el('div', { class: 'live-col' },
       el('div', { class: 'live-row' }, el('div', { class: 'live-left' }, el('span', { class: 'team-name' }, v.name), pill), score),
       el('div', { class: 'live-row' }, el('span', { class: 'team-standing' }, v.standing || ''), watch)));
@@ -126,7 +135,7 @@ function renderLiveChips(live) {
   box.textContent = '';
   box.hidden = !live.length;
   for (const v of live) {
-    box.append(el('div', { class: 'live-chip' }, badge(v.badge), el('div', { class: 'live-chip-col' },
+    box.append(el('div', { class: 'live-chip' }, badge(v.badge, v.logo), el('div', { class: 'live-chip-col' },
       el('p', { class: 'live-chip-score' },
         el('span', { class: 'live-chip-team' }, v.name),
         el('span', { class: v.live.score ? 'live-chip-big' : 'live-chip-opp' }, v.live.score || v.live.venue),
@@ -195,23 +204,28 @@ function renderDock() {
   tv.textContent = '';
   for (const ch of S.cfg.tv) {
     const epg = epgNow(S.feed, ch.key, n);
-    const label = epg ? ch.name + ' · till ' + timeHM(new Date(epg.end)) : ch.name;
-    const title = epg ? epg.title : 'Telia · HDMI ' + ch.hdmi;
+    const title = epg ? epg.title : ch.name;
+    // The channel's logo, then "till 12:00"; its name in text if the logo can't load.
+    const head = el('span', { class: 'tile-head' },
+      logoOr(ch.logo, 'tile-logo', el('span', { class: 'tile-name' }, ch.name + ' ·')),
+      el('span', { class: 'tile-label' }, epg ? 'till ' + timeHM(new Date(epg.end)) : 'Telia · HDMI ' + ch.hdmi));
     tv.append(el('li', {}, el('button', {
       class: 'tile tile-tv focusable', 'data-key': 'tv:' + ch.key, 'data-action': 'input',
-      'data-port': ch.hdmi, 'data-label': 'Telia', 'aria-label': ch.name + ': ' + title
+      'data-port': ch.hdmi, 'data-label': 'Telia', 'aria-label': ch.name + (epg ? ': ' + epg.title : '')
     }, el('span', { class: 'tile-col' },
-      el('span', { class: 'tile-label' }, label),
+      head,
       el('span', { class: 'tile-title' }, title),
       el('span', { class: 'tile-progress' }, el('span', { style: 'width:' + Math.round((epg ? epg.progress : 0) * 100) + '%' }))))));
   }
   const inputs = $('#input-list');
   inputs.textContent = '';
   for (const i of S.cfg.inputs) {
+    const icon = el('span', { class: 'tile-icon-svg', svg: icons[i.icon] || icons.screen });
     inputs.append(el('li', {}, el('button', {
       class: 'tile tile-input focusable', 'data-key': 'in:' + i.key, 'data-action': i.app ? 'app' : 'input',
       'data-port': i.hdmi || '', 'data-app': i.app || '', 'data-label': i.name
-    }, el('span', { class: 'tile-icon', svg: icons[i.icon] || icons.screen }),
+    }, el('span', { class: 'tile-icon', 'aria-hidden': 'true', style: i.logoBg ? 'background:' + i.logoBg : null },
+         logoOr(i.logo, 'tile-icon-logo', icon)),
        el('span', { class: 'tile-col' },
          el('span', { class: 'tile-title' }, i.name),
          el('span', { class: 'tile-label' }, i.hdmi ? 'HDMI ' + i.hdmi : 'App')))));
@@ -220,19 +234,6 @@ function renderDock() {
 }
 
 /* ---------- background video, idle and watching ---------- */
-
-function renderCaption() {
-  const v = S.bg;
-  const cap = $('#caption');
-  if (!v) { cap.hidden = true; return; }
-  cap.hidden = false;
-  $('#caption-badge').textContent = initials(v.channelName);
-  $('#caption-channel').textContent = v.channelName;
-  $('#caption-title').textContent = v.title;
-  const sound = $('#caption-sound');
-  sound.innerHTML = S.muted ? icons.muted : icons.sound;
-  sound.append(document.createTextNode(S.muted ? 'Muted · OK for sound' : 'Sound on · OK to mute'));
-}
 
 function nextBackground() {
   const pool = idlePool(S.feed);
@@ -245,7 +246,6 @@ function nextBackground() {
   // Start somewhere in the middle so the same opening doesn't repeat.
   const start = v.duration ? random(0.05, 0.6) * v.duration : random(60, 900);
   player.play(v.id, { start, muted: S.muted });
-  renderCaption();
 }
 
 function initBackground() {
@@ -268,7 +268,7 @@ function armIdle() {
 }
 
 function leaveIdle() {
-  if (!S.muted) { S.muted = true; player.setMuted(true); renderCaption(); }
+  if (!S.muted) { S.muted = true; player.setMuted(true); }
   setMode('home');
   nav.refresh();
   armIdle();
@@ -365,7 +365,7 @@ function onResult(r) {
 
 function handleKey(k) {
   if (S.mode === 'idle') {
-    if (k === 'enter' || k === 'playpause') { S.muted = !S.muted; player.setMuted(S.muted); renderCaption(); }
+    if (k === 'enter' || k === 'playpause') { S.muted = !S.muted; player.setMuted(S.muted); }
     else if (k === 'right' || k === 'ff') nextBackground();
     else leaveIdle();
     return;

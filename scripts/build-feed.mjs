@@ -137,9 +137,10 @@ async function tv24(slug) {
     get('https://www.tv24.lt/kanalas/' + slug + '/' + today),
     get('https://www.tv24.lt/kanalas/' + slug + '/' + tomorrow)
   ]);
-  const items = [];
-  for (const p of pages) if (p.status === 'fulfilled') items.push(...parseTv24(p.value, tz));
-  if (!items.length) throw new Error('tv24 ' + slug + ': no schedule found');
+  const loaded = pages.filter(p => p.status === 'fulfilled').map(p => p.value);
+  if (!loaded.length) throw pages[0].reason;
+  const items = [].concat(...loaded.map(html => parseTv24(html, tz)));
+  if (!items.length) throw new Error('tv24 ' + slug + ': no schedule found (' + pageShape(loaded[0]) + ')');
   return tidy(items);
 }
 
@@ -156,9 +157,19 @@ export function parseFilmweb(html, tz) {
   return items;
 }
 
+// What a page looked like, for the errors list when its schedule can't be found.
+export function pageShape(html) {
+  const count = re => (html.match(re) || []).length;
+  const title = ((html.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || '').trim().slice(0, 80);
+  return html.length + ' bytes, title "' + decode(title) + '", ' + count(/data-start-time=/g) + ' start times, '
+    + count(/tvPageGroupedSeances/g) + ' programme blocks, ' + count(/itemprop="name"/g) + ' names, '
+    + count(/application\/ld\+json/g) + ' JSON-LD';
+}
+
 async function filmweb(id, tz) {
-  const items = parseFilmweb(await get('https://www.filmweb.pl/program-tv/' + id), tz);
-  if (!items.length) throw new Error('filmweb ' + id + ': no schedule found');
+  const html = await get('https://www.filmweb.pl/program-tv/' + id);
+  const items = parseFilmweb(html, tz);
+  if (!items.length) throw new Error('filmweb ' + id + ': no schedule found (' + pageShape(html) + ')');
   return tidy(items);
 }
 
@@ -209,12 +220,17 @@ export async function main() {
   for (const v of idle) v.duration = (details[v.id] && details[v.id].duration) || null;
   for (const s of streams) Object.assign(s, details[s.id] ? { live: details[s.id].live, start: details[s.id].start, end: details[s.id].end } : {});
 
+  // A channel's "epg" can be one source or a list; the first one that has a schedule wins.
   const epg = {};
   for (const ch of cfg.tv) {
-    const e = ch.epg || {};
-    const items = await attempt('guide ' + ch.key, () =>
-      e.type === 'tv24' ? tv24(e.slug) : e.type === 'filmweb' ? filmweb(e.id, e.timezone || 'Europe/Warsaw') : Promise.resolve([]));
-    epg[ch.key] = items || tidy((previous && previous.epg && previous.epg[ch.key]) || []);
+    let items = null;
+    for (const e of [].concat(ch.epg || [])) {
+      const label = 'guide ' + ch.key + ' (' + e.type + ' ' + (e.slug || e.id) + ')';
+      items = await attempt(label, () =>
+        e.type === 'tv24' ? tv24(e.slug) : e.type === 'filmweb' ? filmweb(e.id, e.timezone || 'Europe/Warsaw') : Promise.resolve(null));
+      if (items && items.length) break;
+    }
+    epg[ch.key] = (items && items.length) ? items : tidy((previous && previous.epg && previous.epg[ch.key]) || []);
   }
 
   const feed = { generatedAt: new Date().toISOString(), subscriptions, idle, epg, streams, errors };

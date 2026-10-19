@@ -36,10 +36,16 @@ function espnEvent(e, teamId) {
   };
 }
 
+// A team's matches, plus its crest when ESPN has one.
 async function espnSchedule(teamId, fixtures) {
   const d = await getJSON(ESPN + 'all/teams/' + teamId + '/schedule' + (fixtures ? '?fixture=true' : ''));
-  return (d.events || []).map(e => espnEvent(e, teamId)).filter(Boolean);
+  return {
+    events: (d.events || []).map(e => espnEvent(e, teamId)).filter(Boolean),
+    logo: (d.team && d.team.logo) || null
+  };
 }
+
+const eventsOf = r => (r.status === 'fulfilled' && r.value ? r.value.events : []);
 
 async function espnStanding(slug, teamId) {
   const d = await getJSON(ESPN_STANDINGS + slug + '/standings');
@@ -93,8 +99,9 @@ async function loadEspnTeam(team) {
   ]);
   if (past.status === 'rejected' && upcoming.status === 'rejected') throw past.reason;
   return {
-    events: dedupe([].concat(past.value || [], upcoming.value || [])),
+    events: dedupe(eventsOf(past).concat(eventsOf(upcoming))),
     standing: standing.value || null,
+    logo: (past.value && past.value.logo) || (upcoming.value && upcoming.value.logo) || null,
     at: Date.now()
   };
 }
@@ -102,22 +109,24 @@ async function loadEspnTeam(team) {
 async function loadTsdbTeam(team) {
   const now = Date.now();
   const year = new Date().getFullYear();
-  const [last, next, table, afc] = await Promise.allSettled([
+  const [last, next, table, afc, info] = await Promise.allSettled([
     getJSON(TSDB + 'eventslast.php?id=' + team.tsdbId),
     getJSON(TSDB + 'eventsnext.php?id=' + team.tsdbId),
     getJSON(TSDB + 'lookuptable.php?l=' + team.tsdbLeague + '&s=' + year),
-    team.espnId ? espnSchedule(team.espnId, true) : Promise.resolve([])
+    team.espnId ? espnSchedule(team.espnId, true) : Promise.resolve(null),
+    getJSON(TSDB + 'lookupteam.php?id=' + team.tsdbId)
   ]);
   if (last.status === 'rejected' && next.status === 'rejected') throw last.reason;
   const events = []
     .concat(((last.value && last.value.results) || []).map(e => tsdbEvent(e, team.tsdbId, now)))
     .concat(((next.value && next.value.events) || []).map(e => tsdbEvent(e, team.tsdbId, now)))
-    .concat(afc.value || [])
+    .concat(eventsOf(afc))
     .filter(Boolean);
   let standing = null;
   const row = ((table.value && table.value.table) || []).find(r => String(r.idTeam) === String(team.tsdbId));
   if (row) standing = { rank: num(row.intRank), points: num(row.intPoints) };
-  return { events: dedupe(events), standing, at: now };
+  const t = info.value && info.value.teams && info.value.teams[0];
+  return { events: dedupe(events), standing, logo: (t && t.strBadge) || (afc.value && afc.value.logo) || null, at: now };
 }
 
 function dedupe(events) {
@@ -138,7 +147,9 @@ export function loadTeam(team) {
 export function teamView(team, data, now) {
   const view = {
     key: team.key, name: team.name, badge: team.badge, leagueName: team.leagueName,
-    watch: team.watch || null, live: null, last: null, next: null, standing: null, loading: !data
+    watch: team.watch || null, live: null, last: null, next: null, standing: null, loading: !data,
+    // A crest set in config.json wins; otherwise the one the data source gives us.
+    logo: (team.badge && team.badge.logo) || (data && data.logo) || null
   };
   if (!data) return view;
   const t = now.getTime();

@@ -64,10 +64,12 @@ You only reinstall if `tizen/` changes. Changes to `app/` or `config.json` go li
 Everything personal is in `app/config.json`; edit it on GitHub and the Action republishes.
 
 - `youtube.subscriptions`, `youtube.idle`: channels as `{ "handle", "id", "name" }`. The `id` is the channel ID that starts with `UC` (on the channel page: About → Share channel → Copy channel ID).
-- `teams`: ESPN team IDs and league codes, TheSportsDB IDs, the badge colours and the watch link.
-- `tv`: channel name, the HDMI port of the box, and where its TV guide comes from.
-- `inputs`: name, HDMI port (or `"app"` for an installed TV app such as Netflix) and icon.
+- `teams`: ESPN team IDs and league codes, TheSportsDB IDs, the badge colours and the watch link. Crests come from ESPN (PSV, FC Tokyo) and TheSportsDB (FC Seoul); to use another image, add `"logo": "<url>"` to a team's `badge`. Until a crest loads, the badge shows the club's initials.
+- `tv`: channel name, the HDMI port of the box, its logo and where its TV guide comes from (one source, or a list that's tried in order).
+- `inputs`: name, HDMI port (or `"app"` for an installed TV app such as Netflix), logo and the colour of the square behind it.
 - `idleMinutes`, `location`, `accent`.
+
+Channel logos (`app/logos/`) come from the [tv-logo/tv-logos](https://github.com/tv-logo/tv-logos) collection, and the PlayStation, Apple TV and Netflix marks from [Simple Icons](https://simpleicons.org). All logos and crests belong to their owners.
 
 ## Trying it on a computer
 

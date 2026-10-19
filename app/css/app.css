@@ -136,18 +136,15 @@ p { margin: 0; }
 .tile-title { font-size: 26px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tile-progress { display: block; height: 4px; margin-top: 8px; border-radius: 2px; background: #2C3B4A; }
 .tile-progress > span { display: block; height: 4px; border-radius: 2px; background: var(--accent); }
-.tile-icon { flex: none; width: 56px; height: 56px; border-radius: 14px; background: #24323F; display: flex; align-items: center; justify-content: center; }
-.tile-icon svg { width: 30px; height: 30px; }
+.tile-icon { flex: none; width: 56px; height: 56px; border-radius: 14px; background: #24323F; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.tile-icon svg { display: block; width: 30px; height: 30px; }
+.tile-icon-logo { display: block; width: 40px; height: 40px; object-fit: contain; }
 
-/* Idle caption */
-.caption { position: absolute; left: 96px; bottom: 64px; max-width: 1100px; display: flex; align-items: center; gap: 20px; padding: 18px 28px 18px 18px; border-radius: 22px; background: rgba(8, 12, 20, 0.86); }
-.caption-badge { flex: none; width: 64px; height: 64px; border-radius: 999px; background: #6E5BD6; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; }
-.caption-text { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.caption-channel { font-size: 24px; font-weight: 600; }
-.caption-title { font-size: 22px; color: #C3CAD6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.caption-divider { flex: none; width: 2px; height: 52px; background: #2A3242; }
-.caption-sound { flex: none; display: flex; align-items: center; gap: 10px; font-size: 22px; color: #C3CAD6; white-space: nowrap; }
-.caption-sound svg { width: 26px; height: 26px; }
+/* Logos: club crests in place of the initials, channel logos at the top of the TV tiles */
+.badge-crest { object-fit: contain; border-radius: 0; }
+.tile-head { display: flex; align-items: center; gap: 12px; min-width: 0; height: 40px; }
+.tile-logo { flex: none; display: block; height: 40px; width: auto; max-width: 104px; object-fit: contain; }
+.tile-name { flex: none; font-size: 22px; font-weight: 600; color: #E3E8EE; }
 
 /* Player overlay while watching */
 .osd { position: absolute; left: 96px; right: 96px; bottom: 64px; padding: 28px 32px; border-radius: 24px; background: rgba(8, 12, 20, 0.88); display: flex; flex-direction: column; gap: 16px; transition: opacity 0.3s ease; }
@@ -162,10 +159,10 @@ p { margin: 0; }
 
 /* Modes. What a mode hides fades out and then becomes hidden, so it can't be clicked
    or read out; what it shows becomes visible straight away and fades in. */
-.ui, .teams, .videos, .dock, .live-chips, .caption { transition: opacity 0.6s ease, visibility 0s linear 0s; }
-.live-chips, .caption { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
+.ui, .teams, .videos, .dock, .live-chips { transition: opacity 0.6s ease, visibility 0s linear 0s; }
+.live-chips { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
 .mode-idle .teams, .mode-idle .videos, .mode-idle .dock { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
 .mode-idle .shade-bottom { opacity: 0; }
-.mode-idle .live-chips, .mode-idle .caption { opacity: 1; visibility: visible; transition: opacity 0.6s ease, visibility 0s linear 0s; }
+.mode-idle .live-chips { opacity: 1; visibility: visible; transition: opacity 0.6s ease, visibility 0s linear 0s; }
 .mode-watch .ui { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
 .mode-watch .shade { opacity: 0; }

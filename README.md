@@ -33,15 +33,14 @@ A different repo name? Change `tizen/js/config.js` and the widget `id` in `tizen
 
 ## 2. Install on the TV
 
-You do this once, from the Mac.
+You do this once, from the Mac. What goes on the TV is `TVHome.wgt`, the `tizen/` folder packed as a TV app. The Action publishes it at https://donouwens.github.io/tv-home/TVHome.wgt, unsigned, because it gets signed with your own Samsung certificate when you install it.
 
-1. **Tizen Studio.** Install [Tizen Studio](https://developer.samsung.com/smarttv/develop/getting-started/setting-up-sdk/installing-tv-sdk.html) to `~/tizen-studio`. In its Package Manager, under Extension SDK, install **TV Extensions** and **Samsung Certificate Extension**. (Samsung is moving to a VS Code extension, but Tizen Studio still installs apps fine.)
-2. **Developer Mode.** On the TV open **Apps**, then type `1 2 3 4 5` (on the solar remote, use the on-screen number pad). Turn **Developer mode** on, enter the Mac's IP address (System Settings → Wi-Fi → Details), and restart the TV by holding the power button until it switches off and on again.
-3. **The TV's IP address:** Settings → All Settings → Connection → Network → Network Status → IP Settings.
-4. **Connect:** `~/tizen-studio/tools/sdb connect <TV IP>`
-5. **Certificate.** In Tizen Studio open **Tools → Certificate Manager → + → Samsung → TV**, name the profile `TVHome`, create a new author certificate (any name and password, then sign in with your Samsung account), then a new distributor certificate with privilege level **Public**. The TV's ID (DUID) is filled in because it's connected. Finish.
-6. **Install:** from this folder, run `tools/install-mac.sh <TV IP>`. It packages `tizen/`, signs it with the `TVHome` profile, installs it and starts it.
-7. **Start with the TV:** Settings → All Settings → General & Privacy → Start Screen Options → **Autorun Last App: On**. Leave TV Home open when you switch the TV off and it comes back next time.
+1. **Developer Mode.** On the TV open **Apps**, then type `1 2 3 4 5` (on the solar remote, press **123** for the on-screen numbers). Turn **Developer mode** on, enter the Mac's IP address (System Settings → Wi-Fi → Details), and restart the TV by holding the power button until it switches off and on again.
+2. **Apps2Samsung.** Download the Apple-chip Mac version (`…-macos-arm64.dmg`) of [Apps2Samsung](https://github.com/Apps2Samsung/Apps2Samsung/releases), an open-source installer for Samsung TVs. It runs natively on Apple-chip Macs and doesn't need Tizen Studio or Java. It isn't notarized, so the first time macOS may block it: right-click → **Open**, or System Settings → Privacy & Security → **Open Anyway**.
+3. **Install.** In Apps2Samsung, pick the TV (it scans the network; the TV's IP is under Settings → All Settings → Connection → Network → Network Status → IP Settings), choose to install your own `.wgt` (in its Settings) and select `TVHome.wgt`. Sign in to your Samsung account when it asks: that's how it gets the developer certificate for your TV.
+4. **Start with the TV:** Settings → All Settings → General & Privacy → Start Screen Options → **Autorun Last App: On**. Leave TV Home open when you switch the TV off and it comes back next time.
+
+**Alternative: Samsung's own tools.** Tizen Studio (or Samsung's VS Code extension, which uses the same tools) and `tools/install-mac.sh` do the same job. On a Mac with an Apple chip they need Rosetta (`softwareupdate --install-rosetta --agree-to-license`) because the tools are Intel-only, and Apple stops offering Rosetta for general apps after macOS 27.
 
 You only reinstall if `tizen/` changes. Changes to `app/` or `config.json` go live through GitHub Pages; the TV picks them up when it comes back to the app after 12 hours, or at 4:00 at night.
 

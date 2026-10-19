@@ -33,6 +33,9 @@ jobs:
           node scripts/build-feed.mjs
         env:
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
+      - name: Package the TV app
+        # Unsigned on purpose: the installer signs it with your own Samsung certificate.
+        run: cd tizen && zip -q -r -X ../app/TVHome.wgt . -x '.*'
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

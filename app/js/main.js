@@ -7,7 +7,7 @@ import { loadTeam, teamView } from './football.js';
 // main.js just after an update (util.js and net.js keep state that's shared, so they don't).
 import { loadFeed, videoCards, idlePool, epgNow, findStream } from './feed.js?v=4';
 import * as nav from './nav.js';
-import * as player from './player.js';
+import * as player from './player.js?v=5';
 import * as bridge from './bridge.js?v=4';
 
 const params = new URLSearchParams(location.search);
@@ -17,6 +17,7 @@ const FROZEN = params.get('now');     // freeze the clock, e.g. ?now=2026-10-19T
 const S = {
   cfg: null, feed: null, weather: null, teams: {}, mock: null, seen: [],
   mode: 'home', bg: null, recent: [], muted: true, watching: null, handoff: null, bgErrors: 0,
+  hidden: false, stalls: 0, ends: 0,
   idleTimer: 0, teamTimer: 0, osdTimer: 0, toastTimer: 0
 };
 
@@ -272,6 +273,8 @@ function nextBackground() {
   const v = choices[Math.floor(Math.random() * choices.length)];
   S.recent = [v.id].concat(S.recent).slice(0, Math.max(1, Math.min(12, Math.floor(pool.length / 2))));
   S.bg = v;
+  S.stalls = 0;
+  S.ends = 0;
   // Start somewhere in the middle so the same opening doesn't repeat.
   const start = v.duration ? random(0.05, 0.6) * v.duration : random(60, 900);
   player.play(v.id, { start, muted: S.muted });
@@ -288,6 +291,28 @@ function initBackground() {
     }
   });
   nextBackground();
+}
+
+// The background should always be moving on the home and idle screens. A paused YouTube player
+// shows its own play button, title and "More videos", so when the video has stopped (the TV
+// paused it while another app was in front, or sound was turned on and the TV wouldn't allow
+// it) start it again: first as it was, then muted, and if it still won't play, move on to
+// another video. Only a paused or finished video counts as stopped, so this never cuts into
+// an ad, which plays in the other states.
+function keepPlaying() {
+  if (S.mode === 'watch' || S.hidden || document.hidden || !S.bg) { S.stalls = 0; S.ends = 0; return; }
+  const st = player.state();
+  if (st === 0) { // finished without the "ended" event reaching us
+    S.stalls = 0;
+    if (++S.ends >= 2) nextBackground();
+    return;
+  }
+  S.ends = 0;
+  if (st !== 2 && st !== 5) { S.stalls = 0; return; }
+  S.stalls++;
+  if (S.stalls === 1) player.resume();
+  else if (S.stalls === 2) { S.muted = true; player.setMuted(true); player.resume(); }
+  else nextBackground();
 }
 
 // How long the home screen stays up after the last key press before fading to the screensaver.
@@ -479,6 +504,7 @@ const STALE = 12 * 3600e3;
 // Back from another app (YouTube, an input): bring everything up to date and give the home
 // screen its full time on screen before the screensaver, rather than an overdue timer.
 function onVisibility(hidden) {
+  S.hidden = hidden;
   if (hidden) { player.pause(); clearTimeout(S.idleTimer); return; }
   if (!FROZEN && Date.now() - BOOTED > STALE) { location.reload(); return; }
   renderTeams();
@@ -564,6 +590,7 @@ async function boot() {
   refreshWeather();
   refreshTeams();
   initBackground();
+  setInterval(keepPlaying, 3000);
   setInterval(refreshFeed, 15 * 60000);
   setInterval(refreshWeather, 15 * 60000);
   setInterval(nightlyReload, 10 * 60000);

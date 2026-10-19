@@ -63,6 +63,11 @@ export async function seek(delta) {
   player.seekTo(Math.max(0, player.getCurrentTime() + delta), true);
 }
 
+// -1 not started, 0 ended, 1 playing, 2 paused, 3 buffering, 5 cued; null before the player is ready.
+export function state() {
+  try { return player && player.getPlayerState ? player.getPlayerState() : null; } catch (e) { return null; }
+}
+
 export function position() {
   if (!player || !player.getCurrentTime) return { time: 0, duration: 0, paused: false };
   return { time: player.getCurrentTime() || 0, duration: player.getDuration() || 0, paused: player.getPlayerState() === 2 };

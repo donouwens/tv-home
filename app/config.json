@@ -1,6 +1,7 @@
 {
   "location": { "name": "Vilnius", "lat": 54.6872, "lon": 25.2797, "timezone": "Europe/Vilnius" },
-  "idleMinutes": 5,
+  "idleSeconds": 30,
+  "youtubeApp": "appcontrol",
   "accent": "#F2B33D",
   "teams": [
     {

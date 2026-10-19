@@ -1,6 +1,6 @@
 # TV Home
 
-A home screen for the living-room Samsung (QE65QN85C, Tizen 7). It shows the time, Vilnius weather, PSV, FC Seoul and FC Tokyo (scores, standings, a watch button when a match is live), new long-form videos from 12 YouTube channels, what's on CNN, LRT and Euronews, and shortcuts to the PS5, Apple TV and Netflix. Behind it plays a random muted video from six city-walk and night-drive channels. After 5 minutes without the remote it becomes that video with just the clock, the weather and any live score on top.
+A home screen for the living-room Samsung (QE65QN85C, Tizen 7). It shows the time, Vilnius weather, PSV, FC Seoul and FC Tokyo (scores, standings, a watch button when a match is live), new long-form videos from 12 YouTube channels, what's on CNN, LRT and Euronews, and shortcuts to the PS5, Apple TV and Netflix. Behind it plays a random muted video from six city-walk and night-drive channels. After 30 seconds without the remote it becomes that video with just the clock, the weather and any live score on top. Videos you pick open in the TV's YouTube app, where you're signed in.
 
 ## How it fits together
 
@@ -13,7 +13,7 @@ scripts/build-feed.mjs  ──writes──▶  app/ + data/feed.json  ◀──f
 
 - **`app/`** is the home screen: plain HTML, CSS and JavaScript, no build step. It's served from GitHub Pages because YouTube only plays embeds on a real web page.
 - **`scripts/build-feed.mjs`** runs in the Action and writes `app/data/feed.json`: the latest uploads per channel (YouTube's long-form playlist, so no Shorts), the idle videos, J.LEAGUE International live streams, and the TV guide from tv24.lt (CNN, LRT) and filmweb.pl (Euronews). If a source fails, it keeps that source's data from the previous run.
-- **`tizen/`** is a small TV app that shows the hosted page full screen and does what only a TV app can: remote media keys, switching HDMI inputs, opening Netflix and links, keeping the TV's screensaver away.
+- **`tizen/`** is a small TV app that shows the hosted page full screen and does what only a TV app can: remote media keys, switching HDMI inputs, opening Netflix, links and videos in the YouTube app, keeping the TV's screensaver away.
 - Weather (Open-Meteo) and football (ESPN, plus TheSportsDB for FC Seoul's K League games) are fetched by the page itself.
 
 ## 1. Publish the page
@@ -37,7 +37,7 @@ You do this once, from the Mac, with Samsung's own tools.
 
 1. **Rosetta (Macs with an Apple chip).** Samsung's tools are Intel-only, so run `softwareupdate --install-rosetta --agree-to-license` first. Apple keeps Rosetta for general apps through macOS 27.
 2. **Tizen Studio.** Download `web-ide_Tizen_Studio_<version>_macos-64.dmg` from Samsung's [installer folder](https://download.tizen.org/sdk/Installer/) and install it to `~/tizen-studio` (not the Desktop). If macOS won't open the installer, right-click → **Open**, or System Settings → Privacy & Security → **Open Anyway**. In its Package Manager, under Extension SDK, install **TV Extensions** and **Samsung Certificate Extension**.
-3. **Developer Mode.** On the TV open **Apps**, then type `1 2 3 4 5` (on the solar remote, press **123** for the on-screen numbers). Turn **Developer mode** on, enter the Mac's IP address (System Settings → Wi-Fi → Details), and restart the TV by holding the power button until it switches off and on again.
+3. **Developer Mode.** On the TV open **Apps**, scroll to the bottom and open **App Settings**. The solar remote has no number keys, so send the code from the Mac: `python3 tools/tv-keys.py <TV IP> 1 2 3 4 5` (allow it on the TV the first time). Turn **Developer mode** on, enter the Mac's IP address (System Settings → Wi-Fi → Details), and restart the TV by holding the power button until it switches off and on again.
 4. **The TV's IP address:** Settings → All Settings → Connection → Network → Network Status → IP Settings.
 5. **Connect:** `~/tizen-studio/tools/sdb connect <TV IP>`
 6. **Certificate.** In Tizen Studio open **Tools → Certificate Manager → + → Samsung → TV**, name the profile `TVHome`, create a new author certificate (any name and password, then sign in with your Samsung account), then a new distributor certificate with privilege level **Public**. The TV's ID (DUID) is filled in because it's connected. Finish.
@@ -53,11 +53,11 @@ You only reinstall if `tizen/` changes. Changes to `app/` or `config.json` go li
 | Where | Key | Does |
 |---|---|---|
 | Home | Arrows, OK | Move, open |
-| Home | OK on a video | Watch it full screen with sound |
+| Home | OK on a video | Opens it in the YouTube app; it then makes way for that channel's next new video |
 | Home | OK on CNN, LRT or Euronews | Switch to the Telia box (HDMI 2) |
 | Home | OK on PS5 or Apple TV | Switch to HDMI 3 or HDMI 1 |
-| Home | OK on Watch (live match) | FC Tokyo: J.LEAGUE International on YouTube. FC Seoul: K League TV in the TV's browser |
-| Watching | OK / ◀ ▶ / Back | Pause, skip 10 s, back home |
+| Home | OK on Watch (live match) | FC Tokyo: the J.LEAGUE International stream in the YouTube app. FC Seoul: K League TV in the TV's browser |
+| Watching in the home screen | OK / ◀ ▶ / Back | Pause, skip 10 s, back home (in a desktop browser, or if the YouTube app can't open) |
 | Idle | OK | Sound on or off |
 | Idle | ▶ | Another video |
 | Idle | Any other key | Back to the home screen |
@@ -70,7 +70,9 @@ Everything personal is in `app/config.json`; edit it on GitHub and the Action re
 - `teams`: ESPN team IDs and league codes, TheSportsDB IDs, the badge colours and the watch link. Crests come from ESPN (PSV, FC Tokyo) and TheSportsDB (FC Seoul); to use another image, add `"logo": "<url>"` to a team's `badge`. Until a crest loads, the badge shows the club's initials.
 - `tv`: channel name, the HDMI port of the box, its logo and where its TV guide comes from (one source, or a list that's tried in order).
 - `inputs`: name, HDMI port (or `"app"` for an installed TV app such as Netflix), logo and the colour of the square behind it.
-- `idleMinutes`, `location`, `accent`.
+- `idleSeconds`: how long the home screen stays up before fading to the screensaver.
+- `youtubeApp`: how a video is handed to the YouTube app: `"appcontrol"` or `"dial"`, or `"off"` to play videos in the home screen instead.
+- `location`, `accent`.
 
 Channel logos (`app/logos/`) come from the [tv-logo/tv-logos](https://github.com/tv-logo/tv-logos) collection, and the PlayStation, Apple TV and Netflix marks from [Simple Icons](https://simpleicons.org). All logos and crests belong to their owners.
 
@@ -84,6 +86,9 @@ Then open http://localhost:8000/?mock=1&now=2026-10-19T08:52:00Z for sample data
 
 ## What to expect
 
+- **The YouTube app.** Samsung doesn't document how one app hands a specific video to YouTube, so `youtubeApp` has two ways to try. If YouTube opens on its own home page instead of the video, switch to the other one. If the app can't be opened at all, the video plays in the home screen instead.
+- **Watched videos.** A video you open from the home screen is remembered on the TV and drops off the row. YouTube doesn't share watch history with other apps, so videos you watched on your phone, or found in the YouTube app yourself, still show here.
+- **Ads in the background videos.** The background plays through YouTube's embedded player, which isn't signed in to your account, so YouTube can show ads there even with Premium.
 - **Switching inputs** uses Samsung's TV Window API, then steps the app aside so the input fills the screen. It hasn't been tried on this TV yet. If a tile doesn't switch, the Source button on the remote still does, and the tile shows a message.
 - **TV channels** open the Telia box on HDMI 2. The box has its own remote and no API, so the tiles can't change its channel.
 - **K League TV** opens in the TV's browser and may need a pass or be unavailable in Lithuania.
@@ -95,4 +100,4 @@ Then open http://localhost:8000/?mock=1&now=2026-10-19T08:52:00Z for sample data
 
 - *Black screen, "The home screen can't load right now":* the TV can't reach GitHub Pages. Press OK to try again.
 - *Install fails with a certificate or signature error:* make sure the `TVHome` profile is the Samsung type, was created while the TV was connected (so it holds its DUID), and is active (`~/tizen-studio/tools/ide/bin/tizen security-profiles list`).
-- *Can't connect:* Developer Mode must have the Mac's current IP; restart the TV after changing it.
+- *Can't connect:* Developer Mode must have the Mac's current IP; restart the TV after changing it. Quit Tizen Studio before running the install script, and run `~/tizen-studio/tools/sdb kill-server` if it still can't find the TV.

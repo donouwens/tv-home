@@ -24,6 +24,13 @@ export function ready() {
 
 export function onTV() { return !!window.tizen || !!wrapperInfo; }
 
+// Whether the TV can do `cmd`. The TV app lists what it can do when it says hello, so a page
+// newer than the installed TV app doesn't ask for things it doesn't know yet.
+export function can(cmd) {
+  if (window.tizen) return !!direct[cmd];
+  return !!(wrapperInfo && Array.isArray(wrapperInfo.commands) && wrapperInfo.commands.indexOf(cmd) >= 0);
+}
+
 // Returns false when there's no TV to talk to (a desktop browser).
 export function send(cmd, args) {
   if (window.tizen && direct[cmd]) {
@@ -65,6 +72,18 @@ const direct = {
     try {
       const ctrl = new window.tizen.ApplicationControl('http://tizen.org/appcontrol/operation/view', args.url, null, null, null);
       window.tizen.application.launchAppControl(ctrl, null, () => done({ ok: true }), err => done({ ok: false, error: err.message }));
+    } catch (e) { done({ ok: false, error: e.message }); }
+  },
+  appControl(args, done) {
+    try {
+      const re = new RegExp(args.match, 'i');
+      window.tizen.application.getAppsInfo(apps => {
+        const app = apps.find(a => re.test(a.name)) || apps.find(a => re.test(a.id));
+        if (!app) return done({ ok: false, error: 'not installed' });
+        const data = Object.entries(args.data || {}).map(([k, v]) => new window.tizen.ApplicationControlData(k, [].concat(v)));
+        const ctrl = new window.tizen.ApplicationControl(args.operation || 'http://tizen.org/appcontrol/operation/view', args.uri || null, null, null, data);
+        window.tizen.application.launchAppControl(ctrl, app.id, () => done({ ok: true }), err => done({ ok: false, error: err.message }));
+      }, err => done({ ok: false, error: err.message }));
     } catch (e) { done({ ok: false, error: e.message }); }
   },
   screenSaver(args, done) {

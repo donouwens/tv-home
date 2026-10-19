@@ -3,7 +3,6 @@
 // and J.LEAGUE live streams. Sources without CORS headers are read there, not on the TV.
 import { getJSON } from './net.js';
 
-const WEEK = 7 * 864e5;
 const MONTH = 30 * 864e5;
 
 // sample: the checked-in example feed, for trying the page without the Action (?mock=1)
@@ -11,28 +10,29 @@ export function loadFeed(sample) {
   return getJSON(sample ? 'data/feed.sample.json' : 'data/feed.json?t=' + Date.now());
 }
 
-// One card per channel (its newest upload), newest first. PSV posts ~10 clips a week,
-// so this keeps one busy channel from filling the row.
-export function videoCards(feed, cfg, now) {
+// One card per channel: its newest upload from the past month that isn't in `seen` (videos
+// already watched), newest first. PSV posts ~10 clips a week, so this keeps one busy channel
+// from filling the row. caughtUp counts channels whose recent videos have all been watched.
+export function videoCards(feed, cfg, now, seen) {
+  const skip = new Set(seen || []);
   const subs = (feed && feed.subscriptions) || [];
   const byId = new Map(subs.map(s => [s.id, s]));
-  let weekCount = 0;
+  const t = now.getTime();
   const cards = [];
+  let caughtUp = 0;
   for (const ch of cfg.youtube.subscriptions) {
     const s = byId.get(ch.id);
     if (!s || !s.videos) continue;
-    const vids = s.videos
+    const recent = s.videos
       .map(v => Object.assign({}, v, { t: new Date(v.published).getTime() }))
-      .filter(v => v.t <= now.getTime() + 60000)
+      .filter(v => v.t <= t + 60000 && t - v.t < MONTH)
       .sort((a, b) => b.t - a.t);
-    weekCount += vids.filter(v => now - v.t < WEEK).length;
-    const newest = vids[0];
-    if (newest && now - newest.t < MONTH) {
-      cards.push({ id: newest.id, title: newest.title, duration: newest.duration || null, published: newest.t, channel: ch.name, channelId: ch.id });
-    }
+    const pick = recent.find(v => !skip.has(v.id));
+    if (pick) cards.push({ id: pick.id, title: pick.title, duration: pick.duration || null, published: pick.t, channel: ch.name, channelId: ch.id });
+    else if (recent.length) caughtUp++;
   }
   cards.sort((a, b) => b.published - a.published);
-  return { cards, weekCount };
+  return { cards, caughtUp };
 }
 
 export function idlePool(feed) {

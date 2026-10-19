@@ -3,18 +3,20 @@ import { getJSON, cache } from './net.js';
 import { icons } from './icons.js';
 import { loadWeather, weatherLabel, weatherIcon } from './weather.js';
 import { loadTeam, teamView } from './football.js';
-import { loadFeed, videoCards, idlePool, epgNow, findStream } from './feed.js';
+// Modules only this file imports carry a version, so a cached older copy isn't mixed with a newer
+// main.js just after an update (util.js and net.js keep state that's shared, so they don't).
+import { loadFeed, videoCards, idlePool, epgNow, findStream } from './feed.js?v=4';
 import * as nav from './nav.js';
 import * as player from './player.js';
-import * as bridge from './bridge.js';
+import * as bridge from './bridge.js?v=4';
 
 const params = new URLSearchParams(location.search);
 const MOCK = params.has('mock');      // sample data, for testing in a desktop browser
 const FROZEN = params.get('now');     // freeze the clock, e.g. ?now=2026-10-19T08:52:00Z
 
 const S = {
-  cfg: null, feed: null, weather: null, teams: {}, mock: null,
-  mode: 'home', bg: null, recent: [], muted: true, watching: null, bgErrors: 0,
+  cfg: null, feed: null, weather: null, teams: {}, mock: null, seen: [],
+  mode: 'home', bg: null, recent: [], muted: true, watching: null, handoff: null, bgErrors: 0,
   idleTimer: 0, teamTimer: 0, osdTimer: 0, toastTimer: 0
 };
 
@@ -179,15 +181,27 @@ function tint(id) {
   return 'hsl(' + hues[h % hues.length] + ', 35%, 28%)';
 }
 
+// Videos opened from here count as watched, and the row moves on to that channel's next new
+// one. YouTube doesn't share watch history with other apps, so this only knows about videos
+// opened from this screen.
+function markSeen(id) {
+  S.seen = [id].concat(S.seen.filter(x => x !== id)).slice(0, 500);
+  cache.set('seen', S.seen);
+}
+
+function loadSeen() {
+  const s = cache.get('seen');
+  return Array.isArray(s) ? s.filter(x => typeof x === 'string') : [];
+}
+
 function renderVideos() {
   const list = $('#video-list');
-  const { cards, weekCount } = videoCards(S.feed, S.cfg, now());
-  const pill = $('#new-count');
-  pill.hidden = !weekCount;
-  pill.textContent = weekCount + ' new this week';
+  const cur = nav.getCurrent();
+  const was = cur && list.contains(cur) ? [...list.querySelectorAll('.vcard')].indexOf(cur) : -1;
+  const { cards, caughtUp } = videoCards(S.feed, S.cfg, now(), S.seen);
   list.textContent = '';
   if (!cards.length) {
-    list.append(el('li', { class: 'videos-empty' }, S.feed ? 'Nothing new this month' : 'Loading your channels…'));
+    list.append(el('li', { class: 'videos-empty' }, !S.feed ? 'Loading your channels…' : caughtUp ? 'You’re all caught up' : 'Nothing new this month'));
     nav.refresh();
     return;
   }
@@ -206,7 +220,9 @@ function renderVideos() {
       el('span', { class: 'vtitle' }, c.title),
       el('span', { class: 'vmeta' }, el('span', { class: 'vchan' }, c.channel), el('span', { class: 'vage' }, '· ' + ago(new Date(c.published), n)))))));
   }
-  nav.refresh();
+  // When the focused card has gone (just watched), focus the card that took its place.
+  const gone = was >= 0 && !cards.some(c => 'video:' + c.id === cur.dataset.key);
+  nav.refresh(gone ? 'video:' + cards[Math.min(was, cards.length - 1)].id : undefined);
 }
 
 /* ---------- dock ---------- */
@@ -274,10 +290,15 @@ function initBackground() {
   nextBackground();
 }
 
+// How long the home screen stays up after the last key press before fading to the screensaver.
+function idleDelay() {
+  return S.cfg.idleSeconds ? S.cfg.idleSeconds * 1000 : (S.cfg.idleMinutes || 5) * 60000;
+}
+
 function armIdle() {
   clearTimeout(S.idleTimer);
   if (S.mode !== 'home') return;
-  S.idleTimer = setTimeout(() => { if (S.mode === 'home') setMode('idle'); }, (S.cfg.idleMinutes || 5) * 60000);
+  S.idleTimer = setTimeout(() => { if (S.mode === 'home') setMode('idle'); }, idleDelay());
 }
 
 function leaveIdle() {
@@ -293,13 +314,44 @@ function youtubeDown() {
   return true;
 }
 
-function watchVideo(id, title, channel) {
-  if (youtubeDown()) return;
+// On the TV, videos open in the YouTube app, where you're signed in (with Premium: no ads).
+// config.json "youtubeApp" picks how the video is handed over: "appcontrol" (default) or
+// "dial", or "off" to play videos in the home screen. Changing it needs no reinstall.
+function handOff(w) {
+  const how = S.cfg.youtubeApp || 'appcontrol';
+  let sent = false;
+  if (how === 'appcontrol' && bridge.can('appControl')) {
+    sent = bridge.send('appControl', {
+      match: '^YouTube$|\\.TizenYouTube$',
+      uri: 'https://www.youtube.com/watch?v=' + w.id,
+      data: { PAYLOAD: JSON.stringify({ values: 'v=' + w.id }) }
+    });
+  } else if (how === 'dial' && bridge.can('dialLaunch')) {
+    sent = bridge.send('dialLaunch', { app: 'YouTube', body: 'v=' + w.id, host: S.cfg.dialHost });
+  }
+  if (sent) { S.handoff = w; toast('Opening in YouTube…'); }
+  return sent;
+}
+
+// Plays inside the home screen: in a desktop browser, or when the YouTube app can't be used.
+// w = { id, title, channel, live, channelId }; without an id, the channel's live page plays.
+function playHere(w) {
+  if (youtubeDown()) return false;
   clearTimeout(S.idleTimer);
-  S.watching = { id, title, channel, live: false };
+  S.watching = w;
   setMode('watch');
-  player.play(id, { start: 0, muted: false });
+  if (w.id) player.play(w.id, w.live ? { muted: false } : { start: 0, muted: false });
+  else { player.pause(); player.playChannelLive($('#live-host'), w.channelId); }
   showOsd();
+  return true;
+}
+
+function watchVideo(id, title, channel) {
+  const w = { id, title, channel, live: false };
+  if (handOff(w) || playHere(w)) {
+    markSeen(id);
+    renderVideos();
+  }
 }
 
 function watchLive(teamKey) {
@@ -311,14 +363,10 @@ function watchLive(teamKey) {
     else toast('Open tv.kleague.com to watch');
     return;
   }
-  if (youtubeDown()) return;
-  clearTimeout(S.idleTimer);
   const id = findStream(S.feed, team.watch, view.live.kickoff);
-  S.watching = { id, title: team.name + ' ' + view.live.venue + ' ' + view.live.opponent, channel: 'J.LEAGUE International', live: true };
-  setMode('watch');
-  if (id) player.play(id, { muted: false });
-  else { player.pause(); player.playChannelLive($('#live-host'), team.watch.channelId); }
-  showOsd();
+  const w = { id, title: team.name + ' ' + view.live.venue + ' ' + view.live.opponent,
+    channel: 'J.LEAGUE International', live: true, channelId: team.watch.channelId };
+  if (!(id && handOff(w))) playHere(w);
 }
 
 function stopWatching() {
@@ -371,6 +419,12 @@ function activate(e) {
 }
 
 function onResult(r) {
+  if (r.cmd === 'appControl' || r.cmd === 'dialLaunch') {
+    const w = S.handoff;
+    S.handoff = null;
+    if (!r.ok && w) { toast('Couldn’t open the YouTube app, so it’s playing here'); playHere(w); }
+    return;
+  }
   if (r.ok) return;
   if (r.cmd === 'switchInput') toast('Couldn’t switch input: ' + r.error);
   else if (r.cmd === 'launchApp' || r.cmd === 'openUrl') toast('Couldn’t open it: ' + r.error);
@@ -422,10 +476,16 @@ function onClick(e) {
 const BOOTED = Date.now();
 const STALE = 12 * 3600e3;
 
+// Back from another app (YouTube, an input): bring everything up to date and give the home
+// screen its full time on screen before the screensaver, rather than an overdue timer.
 function onVisibility(hidden) {
-  if (hidden) { player.pause(); return; }
+  if (hidden) { player.pause(); clearTimeout(S.idleTimer); return; }
   if (!FROZEN && Date.now() - BOOTED > STALE) { location.reload(); return; }
+  renderTeams();
+  renderVideos();
+  renderDock();
   if (S.mode !== 'watch') player.resume();
+  armIdle();
 }
 
 function nightlyReload() {
@@ -477,6 +537,7 @@ async function boot() {
   S.cfg = await getJSON('config.json');
   setTimeZone(S.cfg.location.timezone);
   document.documentElement.style.setProperty('--accent', S.cfg.accent || '#F2B33D');
+  S.seen = loadSeen();
   if (MOCK) S.mock = await getJSON('data/mock.json');
   else {
     S.feed = cache.get('feed');

@@ -93,7 +93,52 @@
     tizen.application.launchAppControl(ctrl, null, function () { done({ ok: true }); }, function (err) { done({ ok: false, error: err.message }); });
   }
 
-  var commands = { switchInput: switchInput, launchApp: launchApp, openUrl: openUrl };
+  // Opens an installed app with an app control, e.g. a video in the YouTube app. The page decides
+  // the details, so how a deep link is built can change without reinstalling this app.
+  function appControl(args, done) {
+    var re = new RegExp(args.match, 'i');
+    tizen.application.getAppsInfo(function (apps) {
+      var app = null;
+      for (var i = 0; i < apps.length && !app; i++) if (re.test(apps[i].name)) app = apps[i];
+      for (var j = 0; j < apps.length && !app; j++) if (re.test(apps[j].id)) app = apps[j];
+      if (!app) { done({ ok: false, error: 'not installed' }); return; }
+      var data = [];
+      var d = args.data || {};
+      for (var k in d) if (Object.prototype.hasOwnProperty.call(d, k)) data.push(new tizen.ApplicationControlData(k, [].concat(d[k])));
+      var ctrl = new tizen.ApplicationControl(args.operation || 'http://tizen.org/appcontrol/operation/view', args.uri || null, null, null, data);
+      tizen.application.launchAppControl(ctrl, app.id, function () { done({ ok: true }); }, function (err) { done({ ok: false, error: err.message }); });
+    }, function (err) { done({ ok: false, error: err.message }); });
+  }
+
+  // A DIAL launch, the way phones open a video in the TV's YouTube app. Only to this TV
+  // (or another address on the home network), never out to the internet.
+  var LOCAL_HOST = /^(127\.0\.0\.1|10(\.\d{1,3}){3}|192\.168(\.\d{1,3}){2}|172\.(1[6-9]|2\d|3[01])(\.\d{1,3}){2})$/;
+
+  function dialLaunch(args, done) {
+    var host = args.host || '127.0.0.1';
+    if (!LOCAL_HOST.test(host)) { done({ ok: false, error: 'bad host' }); return; }
+    if (!/^[A-Za-z0-9._-]+$/.test(args.app || '')) { done({ ok: false, error: 'bad app name' }); return; }
+    var url = 'http://' + host + ':8080/ws/apps/' + args.app;
+    var body = String(args.body || '');
+    var finished = false;
+    var finish = function (res) { if (!finished) { finished = true; done(res); } };
+    setTimeout(function () { finish({ ok: false, error: 'no answer' }); }, 8000);
+    if (window.fetch) {
+      // The TV's DIAL server doesn't send CORS headers, so the reply can't be read: any reply
+      // counts as sent, and only a refused or timed-out connection counts as a failure.
+      window.fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: body })
+        .then(function () { finish({ ok: true }); }, function () { finish({ ok: false, error: 'no answer' }); });
+      return;
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.onload = function () { finish(xhr.status >= 200 && xhr.status < 300 ? { ok: true } : { ok: false, error: 'HTTP ' + xhr.status }); };
+    xhr.onerror = function () { finish({ ok: false, error: 'no answer' }); };
+    xhr.send(body);
+  }
+
+  var commands = { switchInput: switchInput, launchApp: launchApp, openUrl: openUrl, appControl: appControl, dialLaunch: dialLaunch };
 
   window.addEventListener('message', function (e) {
     if (e.origin !== ORIGIN || e.source !== frame.contentWindow) return;
@@ -102,7 +147,7 @@
       loaded = true;
       clearTimeout(loadTimer);
       offline.style.display = 'none';
-      post({ type: 'tvhome:hello', tizen: hasTizen(), version: '1.0.0' });
+      post({ type: 'tvhome:hello', tizen: hasTizen(), version: '1.1.0', commands: hasTizen() ? Object.keys(commands) : [] });
       focusFrame();
     } else if (d.type === 'tvhome:cmd') {
       var fn = commands[d.cmd];

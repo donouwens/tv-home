@@ -1,0 +1,453 @@
+{
+ "_note": "Sample feed from 19 Oct 2026. The GitHub Action replaces this on every run.",
+ "generatedAt": "2026-10-19T08:20:00Z",
+ "subscriptions": [
+  {
+   "id": "UC_2ynsXrRrKP8zYrU7Hc06A",
+   "name": "PSV",
+   "videos": [
+    {
+     "id": "f7Q25Z6XEW8",
+     "title": "HIGHLIGHTS | Overtuigende overwinning in Amsterdam 🤌",
+     "published": "2026-10-19T07:45:00Z",
+     "duration": 604
+    },
+    {
+     "id": "keZoaQRYPco",
+     "title": "HIGHLIGHTS | A frustrating afternoon against ADO Den Haag.",
+     "published": "2026-10-17T17:20:00Z",
+     "duration": 365
+    },
+    {
+     "id": "_bvfQ9Bw-_0",
+     "title": "INTERVIEW | 'Dit was het enige dat niet moest gebeuren’",
+     "published": "2026-10-17T16:20:00Z",
+     "duration": 180
+    },
+    {
+     "id": "N6juVPXE_rs",
+     "title": "Inside | EP02 RB Leipzig - PSV",
+     "published": "2026-10-16T04:20:00Z",
+     "duration": 173
+    }
+   ]
+  },
+  {
+   "id": "UCdC0An4ZPNr_YiFiYoVbwaw",
+   "name": "Daily Dose Of Internet",
+   "videos": [
+    {
+     "id": "1BPVIOqMeac",
+     "title": "One In A Million Throw",
+     "published": "2026-10-17T22:20:00Z",
+     "duration": 902
+    },
+    {
+     "id": "uGRRYuawx1o",
+     "title": "Her Makeup Started Glitching",
+     "published": "2026-10-16T00:20:00Z",
+     "duration": 921
+    },
+    {
+     "id": "ccDM6hkxfyo",
+     "title": "They Tried to Make Him a Villain",
+     "published": "2026-10-14T00:20:00Z",
+     "duration": 916
+    }
+   ]
+  },
+  {
+   "id": "UCmGSJVG3mCRXVOP4yZrU1Dw",
+   "name": "Johnny Harris",
+   "videos": [
+    {
+     "id": "axRhjqd-rus",
+     "title": "The REAL reason China built so much",
+     "published": "2026-10-16T01:20:00Z",
+     "duration": 3026
+    },
+    {
+     "id": "sOz7gG74OIw",
+     "title": "What I've been working on all year",
+     "published": "2026-10-09T08:20:00Z",
+     "duration": 108
+    },
+    {
+     "id": "WFzFT2wW9sI",
+     "title": "The world's most extreme places, explained",
+     "published": "2026-09-28T08:20:00Z",
+     "duration": 10824
+    }
+   ]
+  },
+  {
+   "id": "UCpp3cHR9TWVyXqL1AVw4XkA",
+   "name": "Mike Okay",
+   "videos": [
+    {
+     "id": "X2Ze0tuNvM4",
+     "title": "I Went To Big Ugly West Virginia",
+     "published": "2026-10-16T18:20:00Z",
+     "duration": 1061
+    },
+    {
+     "id": "D4IK7lXZnLA",
+     "title": "The Fine Art of Getting Drunk in a Parking Lot",
+     "published": "2026-10-10T08:20:00Z",
+     "duration": 1617
+    },
+    {
+     "id": "lcFwlUGk1Wk",
+     "title": "Englishman Enters Rural America (Without a Gun)",
+     "published": "2026-10-04T08:20:00Z",
+     "duration": 2935
+    }
+   ]
+  },
+  {
+   "id": "UC5Axef4J11DIu17y2RKVqNQ",
+   "name": "The Present Past",
+   "videos": [
+    {
+     "id": "kV42lYbOjbo",
+     "title": "The Israeli Plane Crash Conspiracy",
+     "published": "2026-10-10T08:20:00Z",
+     "duration": 2318
+    },
+    {
+     "id": "c6ZS8emUR9g",
+     "title": "Exploring Communist Memorials That Will Make You Doubt Capitalism",
+     "published": "2026-09-16T08:20:00Z",
+     "duration": 1299
+    }
+   ]
+  },
+  {
+   "id": "UC5ZixkNQueEyvmYwa-Fs3Kw",
+   "name": "Bucket",
+   "videos": [
+    {
+     "id": "8_CCVDqifos",
+     "title": "6000 Miles to the End of the Road",
+     "published": "2026-10-15T20:20:00Z",
+     "duration": 5886
+    },
+    {
+     "id": "8ASBUx7YKBM",
+     "title": "I will suffer for 21 days to the ARCTIC because I bought this",
+     "published": "2026-10-04T08:20:00Z",
+     "duration": 866
+    }
+   ]
+  },
+  {
+   "id": "UCqykZoZjaOPb6i_Y5gk0kLQ",
+   "name": "Christophe",
+   "videos": [
+    {
+     "id": "zCvPPaIN5Ew",
+     "title": "How to rage bait Americans",
+     "published": "2026-09-28T08:20:00Z",
+     "duration": 1263
+    },
+    {
+     "id": "U0-8SrbG0xA",
+     "title": "Why we're so sure our phones are listening",
+     "published": "2026-09-14T08:20:00Z",
+     "duration": 1252
+    }
+   ]
+  },
+  {
+   "id": "UCJ_2hNMxOzNjviJBiLWHMqg",
+   "name": "DamiLee",
+   "videos": [
+    {
+     "id": "TPTtcV3qJ4U",
+     "title": "Is Chongqing REALLY a Cyberpunk City?",
+     "published": "2026-09-27T08:20:00Z",
+     "duration": 1407
+    },
+    {
+     "id": "FnPo0eTIRJQ",
+     "title": "Why This Cyberpunk City is Dying",
+     "published": "2026-09-13T08:20:00Z",
+     "duration": 1716
+    }
+   ]
+  },
+  {
+   "id": "UC2HaP70SXBXtpMjxqV_fFgQ",
+   "name": "Alfie Potts Harmer",
+   "videos": [
+    {
+     "id": "7KcCNDyRytk",
+     "title": "Why Were Communist Countries Better At Football?",
+     "published": "2026-10-16T16:20:00Z",
+     "duration": 3251
+    },
+    {
+     "id": "JEz60JraDh8",
+     "title": "The 7 Best Seasons Ever By Relegated Footballers.",
+     "published": "2026-10-13T06:20:00Z",
+     "duration": 1859
+    },
+    {
+     "id": "pe1Cg9QKNrA",
+     "title": "Everyone's Lost Their Minds About Manchester City.",
+     "published": "2026-10-09T08:20:00Z",
+     "duration": 2957
+    }
+   ]
+  },
+  {
+   "id": "UCL1ZNSLoVy6x70uDS7Q2uDA",
+   "name": "The Long Play",
+   "videos": [
+    {
+     "id": "MFUwGEnYHOM",
+     "title": "211 Countries. $15 Billion every 4 years. How FIFA Works",
+     "published": "2026-10-17T20:20:00Z",
+     "duration": 941
+    },
+    {
+     "id": "yPz3bz9PDz4",
+     "title": "It's time to talk about my health.",
+     "published": "2026-10-04T08:20:00Z",
+     "duration": 513
+    }
+   ]
+  },
+  {
+   "id": "UCuYLDxZWv-aal88czKkFvKA",
+   "name": "NIGHTRIDE",
+   "videos": [
+    {
+     "id": "fSz0O8Bp5nI",
+     "title": "This Country has INSANE Car Culture | NIGHTRIDE",
+     "published": "2026-10-18T16:20:00Z",
+     "duration": 2025
+    },
+    {
+     "id": "YFGEIR3fZPU",
+     "title": "Turbo Rotary Lamborghini Diablo Driftcar...",
+     "published": "2026-10-11T08:20:00Z",
+     "duration": 1697
+    }
+   ]
+  },
+  {
+   "id": "UCEIs9nkveW9WmYtsOcJBwTg",
+   "name": "Itchy Boots",
+   "videos": [
+    {
+     "id": "1ewpOcU3j_A",
+     "title": "Unraveling the Korean secret to a long life 🇰🇷 | S8, EP165",
+     "published": "2026-10-18T14:20:00Z",
+     "duration": 1155
+    },
+    {
+     "id": "VMLJD17QNxk",
+     "title": "I've reached the end of the EURASIAN CONTINENT on a 1987 Yamaha Tenere 🇰🇷 |S8, EP164",
+     "published": "2026-10-15T05:20:00Z",
+     "duration": 1126
+    },
+    {
+     "id": "RJNfIstscSE",
+     "title": "I made it - somehow.  |S8, EP163",
+     "published": "2026-10-12T08:20:00Z",
+     "duration": 1355
+    }
+   ]
+  }
+ ],
+ "idle": [
+  {
+   "id": "aNKUtXawk4k",
+   "title": "Tokyo Azumabashi to Asakusa Walking Tour On A Rainy Day • 4K HDR",
+   "channelId": "UCoXm66ArnAYGC0SCItOb2Tg",
+   "channelName": "4K JAPAN",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 4050
+  },
+  {
+   "id": "Im5vyzFiOKI",
+   "title": "Sunset Walk Around Seaside Town of Kamakura, Japan • 4K 60fps HDR",
+   "channelId": "UCoXm66ArnAYGC0SCItOb2Tg",
+   "channelName": "4K JAPAN",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 3715
+  },
+  {
+   "id": "K1_mxPL3rpw",
+   "title": "Tokyo shinjuku back alleys to busy downtown area, rainy night walk • 4K 60fps HDR",
+   "channelId": "UCoXm66ArnAYGC0SCItOb2Tg",
+   "channelName": "4K JAPAN",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 4815
+  },
+  {
+   "id": "QWMlioCv_rU",
+   "title": "Tokyo Expressway Night Drive 🇯🇵 / 8K 60fps HDR / Soft Lofi Beats",
+   "channelId": "UC1T_pR-Rt-NdHgytn2GkTeA",
+   "channelName": "Abao Vision",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 8108
+  },
+  {
+   "id": "yP8xgs0kKz0",
+   "title": "Rainy Tokyo Night Drive 🚗 / 8K 60fps HDR / Relaxing Piano Music",
+   "channelId": "UC1T_pR-Rt-NdHgytn2GkTeA",
+   "channelName": "Abao Vision",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 9484
+  },
+  {
+   "id": "Dttll2f2Tks",
+   "title": "Blue Hour Drive through Yokohama 🌃 / 8K 60fps HDR / Soft Lofi Beats",
+   "channelId": "UC1T_pR-Rt-NdHgytn2GkTeA",
+   "channelName": "Abao Vision",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 6723
+  },
+  {
+   "id": "IsrKcZ4eGsk",
+   "title": "Chasing Tokyo's Changing Lights🌙🚗 — Night Drive from Takanawa to Omotesando / Lo-fi Music / 4K 60fps",
+   "channelId": "UCm4cUvipxnSKeAHXfl_K_4w",
+   "channelName": "URABUS",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 3330
+  },
+  {
+   "id": "rwa5WhBFrf4",
+   "title": "A Night All to Myself in Tokyo🌙🚗 — Odaiba to Haneda Airport Night Drive / Lo-fi Music / 4K 60fps",
+   "channelId": "UCm4cUvipxnSKeAHXfl_K_4w",
+   "channelName": "URABUS",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 3355
+  },
+  {
+   "id": "ZZKv6u4mRo8",
+   "title": "Exploring Local Streets Near Tokyo at Dusk, with Shops, Backstreets and Passing Rain | Japan 4K HDR",
+   "channelId": "UC6fdSnLrHNw5uv6pRARr4nQ",
+   "channelName": "4K Ambient Walk",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 5538
+  },
+  {
+   "id": "rDX4u1QJG-4",
+   "title": "The Unexpected Side of Yokohama on a Sunny Day | Japan 4K HDR",
+   "channelId": "UC6fdSnLrHNw5uv6pRARr4nQ",
+   "channelName": "4K Ambient Walk",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 3774
+  },
+  {
+   "id": "t5Bi7i6puHA",
+   "title": "Seoul Neon Night Drive 4K 🚘: Gangnam Sunset, COEX & Gwanghwamun | Lofi Jazz",
+   "channelId": "UC2BCI5FaZ3Uwx8XPsIOtk_g",
+   "channelName": "Seoul Drive",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 6114
+  },
+  {
+   "id": "g2_KDNiBxXg",
+   "title": "Good Morning Seoul: Blue Hour to Sunrise Drive along the Han River | seoul  Lofi & Jazz",
+   "channelId": "UC2BCI5FaZ3Uwx8XPsIOtk_g",
+   "channelName": "Seoul Drive",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 11007
+  },
+  {
+   "id": "Vlu6g5bRKVM",
+   "title": "[4K HDR] Relaxing Seoul Night Walk: Vibrant Seongsu Alleys & Neon Lights",
+   "channelId": "UCSZXwdBppzhYpcqf69WNOIg",
+   "channelName": "Seoul Walker",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 3300
+  },
+  {
+   "id": "IwI1_QNytJ8",
+   "title": "[4K HDR] Seoul Night Drive: Gangnam Neon City to Hongdae | Relaxing Lofi Hip Hop",
+   "channelId": "UCSZXwdBppzhYpcqf69WNOIg",
+   "channelName": "Seoul Walker",
+   "published": "2026-10-16T08:20:00Z",
+   "duration": 9782
+  }
+ ],
+ "epg": {
+  "cnn": [
+   {
+    "title": "CNN Newsroom",
+    "start": "2026-10-19T08:00:00Z",
+    "end": "2026-10-19T09:00:00Z"
+   },
+   {
+    "title": "CNN Headline Express",
+    "start": "2026-10-19T09:00:00Z",
+    "end": "2026-10-19T10:00:00Z"
+   },
+   {
+    "title": "CNN This Morning",
+    "start": "2026-10-19T10:00:00Z",
+    "end": "2026-10-19T11:00:00Z"
+   },
+   {
+    "title": "CNN News Central",
+    "start": "2026-10-19T11:00:00Z",
+    "end": "2026-10-19T12:00:00Z"
+   }
+  ],
+  "lrt": [
+   {
+    "title": "Farai senjorai",
+    "start": "2026-10-19T07:30:00Z",
+    "end": "2026-10-19T08:20:00Z"
+   },
+   {
+    "title": "Tandemas",
+    "start": "2026-10-19T08:20:00Z",
+    "end": "2026-10-19T09:15:00Z"
+   },
+   {
+    "title": "Spėk ir atspėk",
+    "start": "2026-10-19T09:15:00Z",
+    "end": "2026-10-19T09:45:00Z"
+   },
+   {
+    "title": "Kas ir kodėl?",
+    "start": "2026-10-19T09:45:00Z",
+    "end": "2026-10-19T10:10:00Z"
+   },
+   {
+    "title": "Salų dienoraščiai",
+    "start": "2026-10-19T10:10:00Z",
+    "end": "2026-10-19T11:00:00Z"
+   }
+  ],
+  "euronews": [
+   {
+    "title": "Wake up Europe",
+    "start": "2026-10-19T08:30:00Z",
+    "end": "2026-10-19T09:00:00Z"
+   },
+   {
+    "title": "News",
+    "start": "2026-10-19T09:00:00Z",
+    "end": "2026-10-19T09:30:00Z"
+   },
+   {
+    "title": "Euronews Now",
+    "start": "2026-10-19T09:30:00Z",
+    "end": "2026-10-19T10:17:00Z"
+   },
+   {
+    "title": "News",
+    "start": "2026-10-19T10:17:00Z",
+    "end": "2026-10-19T10:30:00Z"
+   }
+  ]
+ },
+ "streams": [],
+ "errors": []
+}

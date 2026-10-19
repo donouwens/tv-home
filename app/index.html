@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&amp;display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="stage" class="stage mode-home">
+
+  <div class="bg" aria-hidden="true">
+    <svg class="bg-fallback" viewBox="0 0 1920 1080" width="1920" height="1080">
+      <defs>
+        <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#04070D"/><stop offset="0.7" stop-color="#101930"/><stop offset="1" stop-color="#1D2946"/></linearGradient>
+        <linearGradient id="bg-road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#161D2D"/><stop offset="1" stop-color="#0A0E17"/></linearGradient>
+        <radialGradient id="bg-lamp"><stop offset="0" stop-color="#FFD9A0" stop-opacity="0.6"/><stop offset="0.4" stop-color="#FFD9A0" stop-opacity="0.18"/><stop offset="1" stop-color="#FFD9A0" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1920" height="600" fill="url(#bg-sky)"/>
+      <path d="M0 600 V552 H64 V528 H118 V560 H176 V506 H232 V546 H296 V518 H348 V566 H416 V534 H468 V492 H522 V552 H600 V522 H652 V562 H724 V540 H770 V584 H1150 V542 H1204 V508 H1258 V554 H1326 V526 H1378 V498 H1430 V550 H1500 V518 H1556 V560 H1622 V532 H1678 V506 H1730 V554 H1802 V528 H1862 V562 H1920 V600 Z" fill="#0A1120"/>
+      <rect y="600" width="1920" height="480" fill="#06090F"/>
+      <path d="M935 600 H985 L1640 1080 H280 Z" fill="url(#bg-road)"/>
+      <g fill="none" stroke-linecap="round">
+        <path d="M470 1080 C640 880 820 720 948 606" stroke="#FF7A5C" stroke-width="5"/>
+        <path d="M610 1080 C740 890 860 730 952 606" stroke="#FF8D72" stroke-width="3.5"/>
+        <path d="M1460 1080 C1270 880 1100 720 972 606" stroke="#FFF4DA" stroke-width="5"/>
+        <path d="M1320 1080 C1180 890 1060 730 968 606" stroke="#FFF1CF" stroke-width="3.5"/>
+      </g>
+      <g fill="url(#bg-lamp)"><circle cx="358" cy="468" r="80"/><circle cx="542" cy="506" r="60"/><circle cx="686" cy="536" r="44"/><circle cx="1562" cy="468" r="80"/><circle cx="1378" cy="506" r="60"/><circle cx="1234" cy="536" r="44"/></g>
+      <g fill="#FFE6BC"><circle cx="358" cy="468" r="15"/><circle cx="542" cy="506" r="11.4"/><circle cx="686" cy="536" r="8.3"/><circle cx="1562" cy="468" r="15"/><circle cx="1378" cy="506" r="11.4"/><circle cx="1234" cy="536" r="8.3"/></g>
+    </svg>
+    <div id="player-host" class="player-host"><div id="player"></div></div>
+    <div id="live-host" class="live-host" hidden></div>
+    <div class="shade shade-top"></div>
+    <div class="shade shade-bottom"></div>
+  </div>
+
+  <main class="ui">
+    <div class="top">
+      <header class="clock-block">
+        <p id="date" class="date"></p>
+        <p id="time" class="time"></p>
+        <div id="weather" class="weather" hidden>
+          <span id="weather-icon" class="weather-icon" aria-hidden="true"></span>
+          <span id="weather-temp" class="weather-temp"></span>
+          <span class="weather-text">
+            <span id="weather-main" class="weather-main"></span>
+            <span id="weather-sub" class="weather-sub"></span>
+          </span>
+        </div>
+      </header>
+
+      <section id="teams" class="teams" aria-labelledby="teams-heading">
+        <h2 id="teams-heading" class="teams-heading">Your teams</h2>
+        <ul id="team-list" class="team-list" data-row="teams"></ul>
+      </section>
+
+      <section id="live-chip" class="live-chips" aria-label="Live now" hidden></section>
+    </div>
+
+    <section id="videos" class="videos" aria-labelledby="videos-heading">
+      <div class="videos-head">
+        <h2 id="videos-heading">New from your channels</h2>
+        <span id="new-count" class="pill" hidden></span>
+      </div>
+      <div class="video-viewport">
+        <ul id="video-list" class="video-list" data-row="videos"></ul>
+      </div>
+    </section>
+
+    <nav id="dock" class="dock" aria-label="TV channels and inputs" data-row="dock">
+      <ul id="tv-list" class="tile-list"></ul>
+      <ul id="input-list" class="tile-list"></ul>
+    </nav>
+  </main>
+
+  <div id="caption" class="caption" hidden>
+    <span id="caption-badge" class="caption-badge" aria-hidden="true"></span>
+    <span class="caption-text">
+      <span id="caption-channel" class="caption-channel"></span>
+      <span id="caption-title" class="caption-title"></span>
+    </span>
+    <span class="caption-divider" aria-hidden="true"></span>
+    <span id="caption-sound" class="caption-sound"></span>
+  </div>
+
+  <div id="osd" class="osd" hidden>
+    <div class="osd-text">
+      <p id="osd-channel" class="osd-channel"></p>
+      <p id="osd-title" class="osd-title"></p>
+    </div>
+    <div class="osd-bar"><span id="osd-progress"></span></div>
+    <div class="osd-meta">
+      <span id="osd-time"></span>
+      <span id="osd-hint" class="osd-hint"></span>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{
+  "location": { "name": "Vilnius", "lat": 54.6872, "lon": 25.2797, "timezone": "Europe/Vilnius" },
+  "idleMinutes": 5,
+  "accent": "#F2B33D",
+  "teams": [
+    {
+      "key": "psv",
+      "name": "PSV",
+      "badge": { "text": "PSV", "bg": "#E03A3E", "fg": "#FFFFFF" },
+      "source": "espn",
+      "espnId": "148",
+      "leagueSlug": "ned.1",
+      "leagueName": "Eredivisie"
+    },
+    {
+      "key": "seoul",
+      "name": "FC Seoul",
+      "badge": { "text": "FCS", "bg": "#17171B", "fg": "#FF6B6E", "ring": "#E2272E" },
+      "source": "thesportsdb",
+      "tsdbId": "138115",
+      "tsdbLeague": "4689",
+      "espnId": "6972",
+      "leagueName": "K League 1",
+      "watch": { "type": "url", "label": "Watch on K League TV", "url": "https://tv.kleague.com/en-int/page/home" }
+    },
+    {
+      "key": "tokyo",
+      "name": "FC Tokyo",
+      "badge": { "text": "FCT", "bg": "#1D4296", "fg": "#FFFFFF", "ring": "#E2272E" },
+      "source": "espn",
+      "espnId": "3384",
+      "leagueSlug": "jpn.1",
+      "leagueName": "J1 League",
+      "watch": { "type": "youtube", "label": "Watch on YouTube", "channelId": "UCmQp6ZaAejJKKkXc_Y_lh1A", "match": "fc tokyo" }
+    }
+  ],
+  "youtube": {
+    "subscriptions": [
+      { "handle": "psv", "id": "UC_2ynsXrRrKP8zYrU7Hc06A", "name": "PSV" },
+      { "handle": "DailyDoseOfInternet", "id": "UCdC0An4ZPNr_YiFiYoVbwaw", "name": "Daily Dose Of Internet" },
+      { "handle": "johnnyharris", "id": "UCmGSJVG3mCRXVOP4yZrU1Dw", "name": "Johnny Harris" },
+      { "handle": "mikeokay", "id": "UCpp3cHR9TWVyXqL1AVw4XkA", "name": "Mike Okay" },
+      { "handle": "ThePresentPast_", "id": "UC5Axef4J11DIu17y2RKVqNQ", "name": "The Present Past" },
+      { "handle": "joinbucket", "id": "UC5ZixkNQueEyvmYwa-Fs3Kw", "name": "Bucket" },
+      { "handle": "christophe", "id": "UCqykZoZjaOPb6i_Y5gk0kLQ", "name": "Christophe" },
+      { "handle": "DamiLeeArch", "id": "UCJ_2hNMxOzNjviJBiLWHMqg", "name": "DamiLee" },
+      { "handle": "alfiepottsharmer1899", "id": "UC2HaP70SXBXtpMjxqV_fFgQ", "name": "Alfie Potts Harmer" },
+      { "handle": "TheLongPlayUK", "id": "UCL1ZNSLoVy6x70uDS7Q2uDA", "name": "The Long Play" },
+      { "handle": "NIGHTRIDEPL", "id": "UCuYLDxZWv-aal88czKkFvKA", "name": "NIGHTRIDE" },
+      { "handle": "ItchyBoots", "id": "UCEIs9nkveW9WmYtsOcJBwTg", "name": "Itchy Boots" }
+    ],
+    "idle": [
+      { "handle": "4KJAPAN", "id": "UCoXm66ArnAYGC0SCItOb2Tg", "name": "4K JAPAN" },
+      { "handle": "abaovision", "id": "UC1T_pR-Rt-NdHgytn2GkTeA", "name": "Abao Vision" },
+      { "handle": "urabus2215", "id": "UCm4cUvipxnSKeAHXfl_K_4w", "name": "URABUS" },
+      { "handle": "4KAmbientWalk", "id": "UC6fdSnLrHNw5uv6pRARr4nQ", "name": "4K Ambient Walk" },
+      { "handle": "TheSeoulDrive", "id": "UC2BCI5FaZ3Uwx8XPsIOtk_g", "name": "Seoul Drive" },
+      { "handle": "SeoulWalker", "id": "UCSZXwdBppzhYpcqf69WNOIg", "name": "Seoul Walker" }
+    ],
+    "liveChannels": [
+      { "id": "UCmQp6ZaAejJKKkXc_Y_lh1A", "name": "J.LEAGUE International" }
+    ]
+  },
+  "tv": [
+    { "key": "cnn", "name": "CNN", "hdmi": 2, "epg": { "type": "tv24", "slug": "cnn-international" } },
+    { "key": "lrt", "name": "LRT", "hdmi": 2, "epg": { "type": "tv24", "slug": "lrt" } },
+    { "key": "euronews", "name": "Euronews", "hdmi": 2, "epg": { "type": "filmweb", "id": "192", "timezone": "Europe/Warsaw" } }
+  ],
+  "inputs": [
+    { "key": "ps5", "name": "PS5", "hdmi": 3, "icon": "gamepad" },
+    { "key": "appletv", "name": "Apple TV", "hdmi": 1, "icon": "screen" },
+    { "key": "netflix", "name": "Netflix", "app": "netflix", "icon": "play" }
+  ]
+}

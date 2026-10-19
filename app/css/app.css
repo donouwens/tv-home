@@ -1,0 +1,171 @@
+:root {
+  --accent: #F2B33D;
+  --fg: #F4F2EE;
+  --muted: #C5CDD8;
+  --dim: #9FAABA;
+  --card: rgba(10, 14, 22, 0.86);
+  --tile: rgba(14, 20, 30, 0.9);
+  --ring: 0 0 0 4px #05080F, 0 0 0 8px #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #05080F; }
+body {
+  font-family: 'Onest', 'Segoe UI', system-ui, sans-serif;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; border: 0; padding: 0; margin: 0; background: none; text-align: left; cursor: pointer; }
+button:focus { outline: none; }
+p { margin: 0; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Stage: a fixed 1920x1080 canvas, scaled to the window when it isn't a TV. */
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; background: #05080F; }
+
+/* Background video */
+.bg { position: absolute; inset: 0; }
+.bg-fallback { position: absolute; left: 0; top: 0; display: block; }
+.player-host { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease; }
+.player-host.is-playing { opacity: 1; }
+.player-host iframe, .live-host iframe { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; border: 0; pointer-events: none; }
+.live-host { position: absolute; inset: 0; background: #000; }
+.shade { position: absolute; left: 0; width: 1920px; transition: opacity 0.6s ease; }
+.shade-top { top: 0; height: 560px; background: linear-gradient(180deg, rgba(3, 5, 9, 0.62) 0%, rgba(3, 5, 9, 0.3) 55%, rgba(3, 5, 9, 0) 100%); }
+.shade-bottom { top: 420px; height: 660px; background: linear-gradient(180deg, rgba(3, 5, 9, 0) 0%, rgba(3, 5, 9, 0.7) 40%, rgba(3, 5, 9, 0.86) 100%); }
+
+/* Layout. The top area and the two bottom rows are placed separately, so a taller teams
+   column (a live match) never pushes the videos or the dock around. */
+.ui { position: absolute; inset: 0; }
+.top { position: absolute; left: 96px; right: 96px; top: 64px; display: flex; justify-content: space-between; align-items: flex-start; }
+.clip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.keep { flex: none; white-space: nowrap; }
+
+/* Clock and weather */
+.clock-block { display: flex; flex-direction: column; gap: 8px; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55); }
+.date { font-size: 30px; font-weight: 500; color: #D3DBE4; }
+.time { font-size: 116px; font-weight: 300; line-height: 0.92; letter-spacing: -3.5px; }
+.weather { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.weather-icon svg { display: block; width: 46px; height: 46px; }
+.weather-temp { font-size: 46px; font-weight: 500; line-height: 1; }
+.weather-text { display: flex; flex-direction: column; gap: 2px; }
+.weather-main { font-size: 24px; font-weight: 600; }
+.weather-sub { font-size: 22px; color: var(--muted); }
+
+/* Teams */
+.teams { width: 800px; display: flex; flex-direction: column; gap: 14px; }
+.teams-heading { margin: 0; font-size: 26px; font-weight: 600; color: #E3E8EE; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55); }
+.team-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.team { width: 800px; padding: 16px 22px 16px 16px; border-radius: 20px; background: var(--card); display: flex; align-items: center; gap: 18px; }
+.badge { flex: none; width: 60px; height: 60px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; }
+.team-grid { flex: 1; min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 20px; row-gap: 6px; align-items: center; }
+.team-name { font-size: 28px; font-weight: 600; white-space: nowrap; }
+.team-result { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 10px; white-space: nowrap; }
+.result-letter { flex: none; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; }
+.result-W { background: #5FD49A; color: #06261A; }
+.result-D { background: #AEB8C6; color: #141A22; }
+.result-L { background: #F59191; color: #2B0909; }
+.team-score { font-size: 28px; font-weight: 600; }
+.team-where { min-width: 0; display: flex; font-size: 22px; color: var(--muted); }
+.team-standing { font-size: 22px; color: var(--muted); white-space: nowrap; }
+.team-next { min-width: 0; display: flex; justify-content: flex-end; font-size: 22px; color: var(--dim); }
+.team-empty { font-size: 22px; color: var(--dim); }
+
+.team.is-live { align-items: flex-start; padding: 14px 20px 14px 16px; background: rgba(10, 14, 22, 0.92); }
+.live-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.live-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.live-row:first-child { min-height: 60px; }
+.live-left { flex: none; display: flex; align-items: center; gap: 14px; }
+.live-pill { flex: none; display: flex; align-items: center; gap: 8px; padding: 4px 14px 4px 12px; border-radius: 999px; background: #C62A2F; color: #FFFFFF; font-size: 22px; font-weight: 700; white-space: nowrap; }
+.live-pill::before { content: ''; flex: none; width: 10px; height: 10px; border-radius: 999px; background: #FFFFFF; }
+.live-score { min-width: 0; display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+.live-score-big { flex: none; font-size: 38px; font-weight: 700; line-height: 1; }
+.live-score-opp { font-size: 24px; color: var(--muted); }
+.btn-watch { flex: none; height: 56px; padding: 0 26px 0 22px; border-radius: 16px; background: #F4F7FB; color: #0B0E14; display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 600; white-space: nowrap; transform-origin: 100% 50%; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.btn-watch svg { width: 24px; height: 24px; }
+.btn-watch.is-focused { transform: scale(1.04); box-shadow: 0 0 0 4px #0A0E16, 0 0 0 8px #FFFFFF, 0 16px 36px rgba(0, 0, 0, 0.5); }
+
+/* Live chips, shown only in idle mode (one per match that's on) */
+.live-chips { position: absolute; right: 0; top: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.live-chip { max-width: 1100px; display: flex; align-items: center; gap: 18px; padding: 18px 28px 18px 18px; border-radius: 22px; background: rgba(10, 14, 22, 0.88); }
+.live-chip .badge { width: 64px; height: 64px; font-size: 21px; }
+.live-chip-col { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.live-chip-score { min-width: 0; display: flex; align-items: baseline; gap: 16px; white-space: nowrap; }
+.live-chip-team { font-size: 30px; font-weight: 600; }
+.live-chip-big { font-size: 40px; font-weight: 700; line-height: 1; }
+.live-chip-opp { font-size: 30px; font-weight: 500; color: #D7DDE6; }
+.live-chip-meta { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.live-chip-league { font-size: 22px; color: var(--muted); }
+
+/* Videos */
+/* Bottom-anchored: 64px safe area + 124px dock + 40px gap. The 60px gap above the row is
+   where a focused card grows into (taller title, slight zoom), so nothing moves on focus. */
+.videos { position: absolute; left: 96px; bottom: 228px; display: flex; flex-direction: column; gap: 60px; }
+.videos-head { display: flex; align-items: center; gap: 16px; }
+.videos-head h2 { margin: 0; font-size: 32px; font-weight: 600; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55); }
+.pill { padding: 5px 14px; border-radius: 999px; background: var(--accent); color: #1A1206; font-size: 22px; font-weight: 700; }
+.video-viewport { width: 1824px; }
+.video-list { list-style: none; margin: 0; padding: 0; display: flex; align-items: flex-end; gap: 28px; transition: transform 0.3s ease; }
+.video-list > li { flex: none; position: relative; width: 300px; height: 261px; }
+.video-list > li.videos-empty { width: auto; height: auto; }
+.vcard { position: absolute; left: 0; bottom: 0; width: 300px; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; background: rgba(10, 14, 22, 0.9); transform-origin: 50% 100%; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.vcard.is-focused { transform: scale(1.05); box-shadow: var(--ring), 0 22px 44px rgba(0, 0, 0, 0.55); }
+.vthumb { position: relative; display: block; width: 300px; height: 169px; background: #1A2230; overflow: hidden; }
+.vthumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.vthumb-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 700; color: rgba(255, 255, 255, 0.7); }
+.vdur { position: absolute; right: 10px; bottom: 10px; padding: 2px 10px; border-radius: 8px; background: #0B0F14; font-size: 22px; font-weight: 600; }
+.vbody { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
+.vtitle { font-size: 24px; font-weight: 500; line-height: 30px; color: #DCE3EA; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vcard.is-focused .vtitle { font-weight: 600; color: #FFFFFF; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.vmeta { display: flex; gap: 6px; font-size: 22px; line-height: 28px; color: #B4C0CC; white-space: nowrap; }
+.vchan { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vage { flex: none; }
+.videos-empty { font-size: 24px; color: var(--dim); }
+
+/* Dock */
+.dock { position: absolute; left: 96px; bottom: 64px; display: flex; gap: 40px; }
+.tile-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 20px; }
+.tile { height: 124px; border-radius: 18px; background: var(--tile); display: flex; align-items: center; gap: 16px; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.tile.is-focused { transform: scale(1.04); box-shadow: var(--ring), 0 16px 36px rgba(0, 0, 0, 0.5); }
+.tile-tv { width: 296px; padding: 0 24px; }
+.tile-input { width: 236px; padding: 0 20px 0 18px; }
+.tile-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.tile-label { font-size: 22px; color: #B4C0CC; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-title { font-size: 26px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-progress { display: block; height: 4px; margin-top: 8px; border-radius: 2px; background: #2C3B4A; }
+.tile-progress > span { display: block; height: 4px; border-radius: 2px; background: var(--accent); }
+.tile-icon { flex: none; width: 56px; height: 56px; border-radius: 14px; background: #24323F; display: flex; align-items: center; justify-content: center; }
+.tile-icon svg { width: 30px; height: 30px; }
+
+/* Idle caption */
+.caption { position: absolute; left: 96px; bottom: 64px; max-width: 1100px; display: flex; align-items: center; gap: 20px; padding: 18px 28px 18px 18px; border-radius: 22px; background: rgba(8, 12, 20, 0.86); }
+.caption-badge { flex: none; width: 64px; height: 64px; border-radius: 999px; background: #6E5BD6; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; }
+.caption-text { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.caption-channel { font-size: 24px; font-weight: 600; }
+.caption-title { font-size: 22px; color: #C3CAD6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.caption-divider { flex: none; width: 2px; height: 52px; background: #2A3242; }
+.caption-sound { flex: none; display: flex; align-items: center; gap: 10px; font-size: 22px; color: #C3CAD6; white-space: nowrap; }
+.caption-sound svg { width: 26px; height: 26px; }
+
+/* Player overlay while watching */
+.osd { position: absolute; left: 96px; right: 96px; bottom: 64px; padding: 28px 32px; border-radius: 24px; background: rgba(8, 12, 20, 0.88); display: flex; flex-direction: column; gap: 16px; transition: opacity 0.3s ease; }
+.osd-channel { font-size: 22px; color: var(--muted); }
+.osd-title { font-size: 34px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.osd-bar { height: 6px; border-radius: 3px; background: #2C3B4A; }
+.osd-bar > span { display: block; height: 6px; width: 0; border-radius: 3px; background: var(--accent); }
+.osd-meta { display: flex; justify-content: space-between; font-size: 22px; color: var(--muted); }
+
+/* Toast: in the free band under the weather, clear of the teams and the video row. */
+.toast { position: absolute; left: 96px; top: 344px; max-width: 860px; padding: 16px 28px; border-radius: 999px; background: rgba(8, 12, 20, 0.94); font-size: 24px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); }
+
+/* Modes. What a mode hides fades out and then becomes hidden, so it can't be clicked
+   or read out; what it shows becomes visible straight away and fades in. */
+.ui, .teams, .videos, .dock, .live-chips, .caption { transition: opacity 0.6s ease, visibility 0s linear 0s; }
+.live-chips, .caption { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
+.mode-idle .teams, .mode-idle .videos, .mode-idle .dock { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
+.mode-idle .shade-bottom { opacity: 0; }
+.mode-idle .live-chips, .mode-idle .caption { opacity: 1; visibility: visible; transition: opacity 0.6s ease, visibility 0s linear 0s; }
+.mode-watch .ui { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
+.mode-watch .shade { opacity: 0; }

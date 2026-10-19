@@ -28,9 +28,26 @@ const now = () => (FROZEN ? new Date(FROZEN) : new Date());
 
 /* ---------- layout ---------- */
 
+// The page is drawn at 1920x1080 and scaled to the window. On the TV the window can still be
+// tiny when the page first measures it (the app is mid-launch), so measure again whenever the
+// size changes and for a few seconds after start, and never trust a TV-sized-down reading.
+const ON_TV = params.has('tv');
+
 function fitStage() {
-  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  const w = window.innerWidth || document.documentElement.clientWidth;
+  const h = window.innerHeight || document.documentElement.clientHeight;
+  if (!w || !h) return;
+  let s = Math.min(w / 1920, h / 1080);
+  if (ON_TV && s < 0.6) s = 1;
   $('#stage').style.transform = Math.abs(s - 1) < 0.001 ? '' : 'scale(' + s + ')';
+}
+
+function watchStageSize() {
+  fitStage();
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('load', fitStage);
+  if (window.ResizeObserver) new ResizeObserver(fitStage).observe(document.documentElement);
+  [300, 1000, 3000, 8000].forEach(t => setTimeout(fitStage, t));
 }
 
 function toast(msg) {
@@ -460,8 +477,7 @@ async function refreshTeams() {
 }
 
 async function boot() {
-  fitStage();
-  window.addEventListener('resize', fitStage);
+  watchStageSize();
   S.cfg = await getJSON('config.json');
   setTimeZone(S.cfg.location.timezone);
   document.documentElement.style.setProperty('--accent', S.cfg.accent || '#F2B33D');

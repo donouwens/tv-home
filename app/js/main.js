@@ -28,17 +28,13 @@ const now = () => (FROZEN ? new Date(FROZEN) : new Date());
 
 /* ---------- layout ---------- */
 
-// The page is drawn at 1920x1080 and scaled to the window. On the TV the window can still be
-// tiny when the page first measures it (the app is mid-launch), so measure again whenever the
-// size changes and for a few seconds after start, and never trust a TV-sized-down reading.
-const ON_TV = params.has('tv');
-
+// The page is drawn at 1920x1080 and scaled to fit its window (the TV app's full-screen frame,
+// or a browser window). Measure again whenever that size changes, and a few times after start.
 function fitStage() {
   const w = window.innerWidth || document.documentElement.clientWidth;
   const h = window.innerHeight || document.documentElement.clientHeight;
   if (!w || !h) return;
-  let s = Math.min(w / 1920, h / 1080);
-  if (ON_TV && s < 0.6) s = 1;
+  const s = Math.min(w / 1920, h / 1080);
   $('#stage').style.transform = Math.abs(s - 1) < 0.001 ? '' : 'scale(' + s + ')';
 }
 

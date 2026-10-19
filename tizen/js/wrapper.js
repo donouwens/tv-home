@@ -13,6 +13,16 @@
 
   function hasTizen() { return typeof window.tizen !== 'undefined'; }
 
+  // Fill the screen even if the stylesheet doesn't load (styles set from script are allowed).
+  function fillScreen() {
+    var fill = function (el) { el.style.margin = '0'; el.style.width = '100%'; el.style.height = '100%'; el.style.overflow = 'hidden'; };
+    fill(document.documentElement);
+    fill(document.body);
+    document.body.style.background = '#05080F';
+    var f = frame.style;
+    f.position = 'absolute'; f.left = '0'; f.top = '0'; f.width = '100%'; f.height = '100%'; f.border = '0'; f.display = 'block';
+  }
+
   function post(msg) {
     try { frame.contentWindow.postMessage(msg, ORIGIN); } catch (e) { /* frame not ready */ }
   }
@@ -118,6 +128,7 @@
     if (!document.hidden) { screenSaverOff(); focusFrame(); }
   });
 
+  fillScreen();
   registerKeys();
   screenSaverOff();
   load();

@@ -5,8 +5,9 @@
 
 Uses the TV's own remote-control connection (port 8002), so nothing is installed on
 the TV. The first time, the TV asks whether to allow "TV Home" to control it: choose
-Allow with the remote. Keys are digits (1, 2 …) or Samsung key names (ENTER, RETURN,
-HOME, UP, DOWN …). Only Python's standard library is used.
+Allow with the remote. The TV then hands out a token, kept in ~/.tv-keys-token, so it
+doesn't ask again. Keys are digits (1, 2 …) or Samsung key names (ENTER, RETURN, HOME,
+UP, DOWN …). Only Python's standard library is used.
 """
 import base64
 import json
@@ -19,6 +20,26 @@ import time
 
 PORT = 8002
 NAME = 'TV Home'
+TOKEN_FILE = os.path.expanduser('~/.tv-keys-token')
+
+
+def load_token(ip):
+    try:
+        with open(TOKEN_FILE) as f:
+            return json.load(f).get(ip)
+    except (OSError, ValueError):
+        return None
+
+
+def save_token(ip, token):
+    try:
+        with open(TOKEN_FILE) as f:
+            tokens = json.load(f)
+    except (OSError, ValueError):
+        tokens = {}
+    tokens[ip] = token
+    with open(TOKEN_FILE, 'w') as f:
+        json.dump(tokens, f)
 
 
 def frame(opcode, payload=b''):
@@ -65,7 +86,7 @@ def recv_text(sock):
             return data.decode('utf-8', 'replace')
 
 
-def connect(ip):
+def connect(ip, token=None):
     raw = socket.create_connection((ip, PORT), timeout=10)
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
@@ -73,6 +94,8 @@ def connect(ip):
     sock = ctx.wrap_socket(raw, server_hostname=ip)
     key = base64.b64encode(os.urandom(16)).decode()
     path = '/api/v2/channels/samsung.remote.control?name=' + base64.b64encode(NAME.encode()).decode()
+    if token:
+        path += '&token=' + token
     sock.sendall((
         f'GET {path} HTTP/1.1\r\nHost: {ip}:{PORT}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n'
         f'Sec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n').encode())
@@ -90,18 +113,28 @@ def main():
         print(__doc__)
         sys.exit(1)
     ip, keys = sys.argv[1], sys.argv[2:]
-    print('Connecting to the TV. If it asks whether to allow "TV Home", choose Allow.')
+    token = load_token(ip)
+    if not token:
+        print('Connecting to the TV. When it asks whether to allow "TV Home", choose Allow.')
     try:
-        sock = connect(ip)
+        sock = connect(ip, token)
         sock.settimeout(60)  # time to answer the Allow prompt
         while True:
-            event = json.loads(recv_text(sock)).get('event')
+            msg = json.loads(recv_text(sock))
+            event = msg.get('event')
             if event == 'ms.channel.connect':
+                new_token = (msg.get('data') or {}).get('token')
+                if new_token and new_token != token:
+                    save_token(ip, new_token)
                 break
             if event == 'ms.channel.unauthorized':
                 sys.exit('The TV said no. Run this again and choose Allow on the TV.')
     except (OSError, ConnectionError) as e:
         sys.exit(f"Couldn't reach the TV at {ip}: {e}. Check the IP and that the TV is on.")
+    if not token:
+        # Give the Allow prompt time to close, so the presses reach the screen behind it.
+        print('Allowed. Pressing the keys in 3 seconds.')
+        time.sleep(3)
     for k in keys:
         code = k.upper() if k.upper().startswith('KEY_') else 'KEY_' + k.upper()
         sock.sendall(frame(0x1, json.dumps({'method': 'ms.remote.control', 'params': {
